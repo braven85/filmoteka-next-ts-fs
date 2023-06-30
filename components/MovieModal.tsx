@@ -294,7 +294,7 @@ const MovieModal = () => {
           <div className='flex w-full justify-evenly my-4 gap-x-2'>
             <Button
               onClick={handleWatchedOnClick}
-              className={`
+              className={`px-10 py-5
               ${isMovieWatched ? 'bg-active-button-bg' : ''}
               ${isMovieWatched ? 'border-active-button-bg' : ''}
               ${isMovieWatched ? 'text-white' : ''}
@@ -304,7 +304,7 @@ const MovieModal = () => {
             </Button>
             <Button
               onClick={handleQueuedOnClick}
-              className={`
+              className={`px-10 py-5
               ${isMovieQueued ? 'bg-active-button-bg' : ''}
               ${isMovieQueued ? 'border-active-button-bg' : ''}
               ${isMovieQueued ? 'text-white' : ''}
