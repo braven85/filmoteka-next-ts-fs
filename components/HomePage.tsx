@@ -78,12 +78,12 @@ const HomePage: React.FC<HomePageProps> = ({
 
   return (
     <>
-      <Pagination />
       <div className='grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-x-7'>
         {moviesList?.map((movie) => (
           <MovieCard key={movie.id} data={movie} />
         ))}
       </div>
+      <Pagination />
     </>
   );
 };
