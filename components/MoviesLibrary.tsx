@@ -21,8 +21,8 @@ const MoviesLibrary: React.FC<MoviesLibraryProps> = ({
   watchedMoviesFromDatabase,
   queuedMoviesFromDatabase,
 }) => {
-  const { watched } = useWatched();
-  const { queued } = useQueued();
+  const { watched, resetWatched } = useWatched();
+  const { queued, resetQueued } = useQueued();
   const wholeLibraryById = watchedMoviesFromDatabase.concat(queuedMoviesFromDatabase);
   const { watchedMovies, setWatchedMovies } = useWatchedMovies();
   const { queuedMovies, setQueuedMovies } = useQueuedMovies();
@@ -34,6 +34,8 @@ const MoviesLibrary: React.FC<MoviesLibraryProps> = ({
       setWatchedMovies(watchedMoviesFromDatabase);
       setQueuedMovies(queuedMoviesFromDatabase);
       setIsLoggedIn();
+      resetWatched();
+      resetQueued();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
