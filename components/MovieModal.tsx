@@ -247,7 +247,7 @@ const MovieModal = () => {
   };
 
   return (
-    <div className='fixed z-30 w-screen h-screen bg-white overflow-y-auto'>
+    <div className='fixed z-30 w-screen h-screen bg-white overflow-y-scroll'>
       <div className='flex justify-end'>
         <div className='m-2 p-5 hover:cursor-pointer rounded-full z-40' onClick={handleModalClose}>
           <HiXMark size={26} />
