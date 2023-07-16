@@ -9,6 +9,8 @@ import useWatchedMovies from '@/hooks/useWatchedMovies';
 import useQueuedMovies from '@/hooks/useQueuedMovies';
 import useIsLoggedIn from '@/hooks/useIsLoggedIn';
 import { useRouter } from 'next/navigation';
+import Button from './Button';
+import useLoginModal from '@/hooks/useLoginModal';
 
 interface MoviesLibraryProps {
   currentUser: SafeUser | null;
@@ -23,6 +25,7 @@ const MoviesLibrary: React.FC<MoviesLibraryProps> = ({
 }) => {
   const { watched, resetWatched } = useWatched();
   const { queued, resetQueued } = useQueued();
+  const loginModal = useLoginModal();
   const wholeLibraryById = watchedMoviesFromDatabase.concat(queuedMoviesFromDatabase);
   const { watchedMovies, setWatchedMovies } = useWatchedMovies();
   const { queuedMovies, setQueuedMovies } = useQueuedMovies();
@@ -54,21 +57,27 @@ const MoviesLibrary: React.FC<MoviesLibraryProps> = ({
           <div className='grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-x-7'>
             {!watched &&
               !queued &&
-              wholeLibraryById?.map((movie) => (
-                <MovieCardFromDb key={movie.id} movieData={movie} />
-              ))}
+              wholeLibraryById?.map(movie => <MovieCardFromDb key={movie.id} movieData={movie} />)}
             {watched &&
-              watchedMoviesFromDatabase?.map((movie) => (
+              watchedMoviesFromDatabase?.map(movie => (
                 <MovieCardFromDb key={movie.id} movieData={movie} />
               ))}
             {queued &&
-              queuedMoviesFromDatabase?.map((movie) => (
+              queuedMoviesFromDatabase?.map(movie => (
                 <MovieCardFromDb key={movie.id} movieData={movie} />
               ))}
           </div>
         </>
       ) : (
-        <div className='text-red-600 text-4xl p-10 text-center'>You are not logged in!</div>
+        <>
+          <div className='text-red-600 text-4xl p-10 text-center'>You are not logged in!</div>
+          <div className='text-red-600 text-4xl pb-10 text-center'>
+            Log in or sign up to use library functions!
+          </div>
+          <Button className='px-10 py-5 mb-10' onClick={loginModal.onOpen}>
+            Login/Sign up
+          </Button>
+        </>
       )}
     </>
   );

@@ -13,6 +13,7 @@ import useWatchedMovies from '@/hooks/useWatchedMovies';
 import useQueuedMovies from '@/hooks/useQueuedMovies';
 import useIsLoggedIn from '@/hooks/useIsLoggedIn';
 import { toast } from 'react-toastify';
+import useLoginModal from '@/hooks/useLoginModal';
 
 const MovieModal = () => {
   const [movieData, setMovieData] = useState<MovieByIdProps | undefined>();
@@ -21,11 +22,12 @@ const MovieModal = () => {
   const { queuedMovies, setQueuedMovies } = useQueuedMovies();
 
   const movieModal = useMovieModal();
+  const loginModal = useLoginModal();
   const { movieId, setMovieId } = useMovieId();
   const { isLoggedIn } = useIsLoggedIn();
 
   const checkIsMovieWatched = (): boolean => {
-    const isWatched = watchedMovies.find((movie) => movie?.movieId === movieId);
+    const isWatched = watchedMovies.find(movie => movie?.movieId === movieId);
 
     if (isWatched) {
       return true;
@@ -37,7 +39,7 @@ const MovieModal = () => {
   const [isMovieWatched, setIsMovieWatched] = useState<boolean>(checkIsMovieWatched());
 
   const checkIsMovieQueued = (): boolean => {
-    const isQueued = queuedMovies.find((movie) => movie?.movieId === movieId);
+    const isQueued = queuedMovies.find(movie => movie?.movieId === movieId);
 
     if (isQueued) {
       return true;
@@ -57,7 +59,7 @@ const MovieModal = () => {
       if (!res.ok) {
         throw new Error('Something went wrong!');
       } else {
-        return res.json().then((data) => setMovieData(data));
+        return res.json().then(data => setMovieData(data));
       }
     } catch (error) {
       console.error(error);
@@ -93,28 +95,90 @@ const MovieModal = () => {
 
   const handleWatchedOnClick = () => {
     if (!isLoggedIn) {
-      toast.error('Please log in to use library functions!');
+      loginModal.onOpen();
       return;
     }
 
     if (isMovieQueued) {
-      toast.error(`${movieData?.title} is already in your queued movies library`);
+      // remove movie from queued
+      const currentMovie = queuedMovies.find(movie => movie.movieId === movieId);
+      axios
+        .delete(`/api/queuedMovies/${currentMovie?.id}`)
+        .then(() => {
+          const filteredQueuedMovies = queuedMovies.filter(
+            movies => movies.movieId !== movieData?.id
+          );
+          setQueuedMovies(filteredQueuedMovies);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+
+      setIsMovieQueued(!isMovieQueued);
+
+      // add movie to watched
+      let posterPath: string | undefined;
+      if (movieData?.poster_path === null) {
+        posterPath = 'empty';
+      } else {
+        posterPath = movieData?.poster_path;
+      }
+
+      axios
+        .post('/api/watchedMovies', {
+          title: movieData?.title,
+          originalTitle: movieData?.original_title,
+          movieId: movieData?.id,
+          overview: movieData?.overview,
+          popularity: movieData?.popularity,
+          posterPath,
+          releaseDate: movieData?.release_date,
+          voteAverage: movieData?.vote_average,
+          voteCount: movieData?.vote_count,
+          genres: genresJoinedWithComma,
+        })
+        .then(res => {
+          toast.success(`You have successfully added ${movieData?.title} to watched!`);
+          const newMovie: MovieByIdFromDbProps = {
+            createdAt: res.data.createdAt,
+            id: res.data.id,
+            title: res.data.title,
+            originalTitle: res.data.originalTitle,
+            movieId: res.data.movieId,
+            overview: res.data.overview,
+            popularity: res.data.popularity,
+            posterPath: res.data.posterPath,
+            releaseDate: res.data.releaseDate,
+            userId: res.data.userId,
+            voteAverage: res.data.voteAverage,
+            voteCount: res.data.voteCount,
+            genres: genresJoinedWithComma,
+          };
+          const newWatchedMovies: MovieByIdFromDbProps[] = [...watchedMovies, newMovie];
+          setWatchedMovies(newWatchedMovies);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+
+      setIsMovieWatched(!isMovieWatched);
+
       return;
     }
 
     if (isMovieWatched) {
       // remove movie from watched
-      const currentMovie = watchedMovies.find((movie) => movie.movieId === movieId);
+      const currentMovie = watchedMovies.find(movie => movie.movieId === movieId);
       axios
         .delete(`/api/watchedMovies/${currentMovie?.id}`)
         .then(() => {
           toast.success(`You have successfully removed ${movieData?.title} from watched!`);
           const filteredWatchedMovies = watchedMovies.filter(
-            (movies) => movies.movieId !== movieData?.id
+            movies => movies.movieId !== movieData?.id
           );
           setWatchedMovies(filteredWatchedMovies);
         })
-        .catch((error) => {
+        .catch(error => {
           console.log(error);
         });
     } else {
@@ -139,7 +203,7 @@ const MovieModal = () => {
           voteCount: movieData?.vote_count,
           genres: genresJoinedWithComma,
         })
-        .then((res) => {
+        .then(res => {
           toast.success(`You have successfully added ${movieData?.title} to watched!`);
           const newMovie: MovieByIdFromDbProps = {
             createdAt: res.data.createdAt,
@@ -159,7 +223,7 @@ const MovieModal = () => {
           const newWatchedMovies: MovieByIdFromDbProps[] = [...watchedMovies, newMovie];
           setWatchedMovies(newWatchedMovies);
         })
-        .catch((error) => {
+        .catch(error => {
           console.log(error);
         });
     }
@@ -169,34 +233,27 @@ const MovieModal = () => {
 
   const handleQueuedOnClick = () => {
     if (!isLoggedIn) {
-      toast.error('Please log in to use library functions!');
+      loginModal.onOpen();
       return;
     }
 
     if (isMovieWatched) {
-      toast.error(`${movieData?.title} is already in your watched movies library`);
-      return;
-    }
-
-    if (isMovieQueued) {
       // remove movie from watched
-      const currentMovie = queuedMovies.find((movie) => movie.movieId === movieId);
+      const currentMovie = watchedMovies.find(movie => movie.movieId === movieId);
       axios
-        .delete(`/api/queuedMovies/${currentMovie?.id}`)
+        .delete(`/api/watchedMovies/${currentMovie?.id}`)
         .then(() => {
-          toast.success(`You have successfully removed ${movieData?.title} from queued!`);
-          const filteredQueuedMovies = queuedMovies.filter(
-            (movies) => movies.movieId !== movieData?.id
+          const filteredWatchedMovies = watchedMovies.filter(
+            movies => movies.movieId !== movieData?.id
           );
-          // console.log('filteredQueuedMovies:');
-          // console.log(filteredQueuedMovies);
-          setQueuedMovies(filteredQueuedMovies);
+          setWatchedMovies(filteredWatchedMovies);
         })
-        .catch((error) => {
+        .catch(error => {
           console.log(error);
         });
-    } else {
-      // add movie to watched
+      setIsMovieWatched(!isMovieWatched);
+
+      // add movie to queued
       let posterPath: string | undefined;
       if (movieData?.poster_path === null) {
         posterPath = 'empty';
@@ -217,7 +274,7 @@ const MovieModal = () => {
           voteCount: movieData?.vote_count,
           genres: genresJoinedWithComma,
         })
-        .then((res) => {
+        .then(res => {
           toast.success(`You have successfully added ${movieData?.title} to queued!`);
           const newMovie: MovieByIdFromDbProps = {
             createdAt: res.data.createdAt,
@@ -235,10 +292,75 @@ const MovieModal = () => {
             genres: genresJoinedWithComma,
           };
           const newQueuedMovies: MovieByIdFromDbProps[] = [...queuedMovies, newMovie];
-          // console.log(newQueuedMovies);
           setQueuedMovies(newQueuedMovies);
         })
-        .catch((error) => {
+        .catch(error => {
+          console.log(error);
+        });
+
+      setIsMovieQueued(!isMovieQueued);
+
+      return;
+    }
+
+    if (isMovieQueued) {
+      // remove movie from queued
+      const currentMovie = queuedMovies.find(movie => movie.movieId === movieId);
+      axios
+        .delete(`/api/queuedMovies/${currentMovie?.id}`)
+        .then(() => {
+          toast.success(`You have successfully removed ${movieData?.title} from queued!`);
+          const filteredQueuedMovies = queuedMovies.filter(
+            movies => movies.movieId !== movieData?.id
+          );
+          setQueuedMovies(filteredQueuedMovies);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    } else {
+      // add movie to queued
+      let posterPath: string | undefined;
+      if (movieData?.poster_path === null) {
+        posterPath = 'empty';
+      } else {
+        posterPath = movieData?.poster_path;
+      }
+
+      axios
+        .post('/api/queuedMovies', {
+          title: movieData?.title,
+          originalTitle: movieData?.original_title,
+          movieId: movieData?.id,
+          overview: movieData?.overview,
+          popularity: movieData?.popularity,
+          posterPath,
+          releaseDate: movieData?.release_date,
+          voteAverage: movieData?.vote_average,
+          voteCount: movieData?.vote_count,
+          genres: genresJoinedWithComma,
+        })
+        .then(res => {
+          toast.success(`You have successfully added ${movieData?.title} to queued!`);
+          const newMovie: MovieByIdFromDbProps = {
+            createdAt: res.data.createdAt,
+            id: res.data.id,
+            title: res.data.title,
+            originalTitle: res.data.originalTitle,
+            movieId: res.data.movieId,
+            overview: res.data.overview,
+            popularity: res.data.popularity,
+            posterPath: res.data.posterPath,
+            releaseDate: res.data.releaseDate,
+            userId: res.data.userId,
+            voteAverage: res.data.voteAverage,
+            voteCount: res.data.voteCount,
+            genres: genresJoinedWithComma,
+          };
+          const newQueuedMovies: MovieByIdFromDbProps[] = [...queuedMovies, newMovie];
+          setQueuedMovies(newQueuedMovies);
+        })
+        .catch(error => {
           console.log(error);
         });
     }

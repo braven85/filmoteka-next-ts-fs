@@ -13,7 +13,6 @@ import useQueued from '@/hooks/useQueued';
 import useLoginModal from '@/hooks/useLoginModal';
 import { SafeUser } from '@/types';
 import { signOut } from 'next-auth/react';
-import useWatchedMovies from '@/hooks/useWatchedMovies';
 import useIsLoggedIn from '@/hooks/useIsLoggedIn';
 
 interface NavbarProps {
@@ -110,7 +109,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
           <SearchInput id='movie' register={register} />
         </form>
       )}
-      {pathname === '/library' && (
+      {pathname === '/library' && currentUser && (
         <div className='mt-12 flex w-full justify-evenly gap-x-2'>
           <Button
             onClick={handleWatchedOnClick}
