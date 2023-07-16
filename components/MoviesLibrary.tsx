@@ -11,6 +11,7 @@ import useIsLoggedIn from '@/hooks/useIsLoggedIn';
 import { useRouter } from 'next/navigation';
 import Button from './Button';
 import useLoginModal from '@/hooks/useLoginModal';
+import useWatchedAndQueued from '@/hooks/useWatchedAndQueued';
 
 interface MoviesLibraryProps {
   currentUser: SafeUser | null;
@@ -23,8 +24,9 @@ const MoviesLibrary: React.FC<MoviesLibraryProps> = ({
   watchedMoviesFromDatabase,
   queuedMoviesFromDatabase,
 }) => {
-  const { watched, resetWatched } = useWatched();
-  const { queued, resetQueued } = useQueued();
+  const { watchedAndQueued, setWatchedAndQueued } = useWatchedAndQueued();
+  const { watched, setNotWatched } = useWatched();
+  const { queued, setNotQueued } = useQueued();
   const loginModal = useLoginModal();
   const wholeLibraryById = watchedMoviesFromDatabase.concat(queuedMoviesFromDatabase);
   const { watchedMovies, setWatchedMovies } = useWatchedMovies();
@@ -37,8 +39,9 @@ const MoviesLibrary: React.FC<MoviesLibraryProps> = ({
       setWatchedMovies(watchedMoviesFromDatabase);
       setQueuedMovies(queuedMoviesFromDatabase);
       setIsLoggedIn();
-      resetWatched();
-      resetQueued();
+      setWatchedAndQueued();
+      setNotWatched();
+      setNotQueued();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -55,8 +58,7 @@ const MoviesLibrary: React.FC<MoviesLibraryProps> = ({
             <div className='text-red-600 text-4xl p-10 text-center'>Your library is empty!</div>
           )}
           <div className='grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-x-7'>
-            {!watched &&
-              !queued &&
+            {watchedAndQueued &&
               wholeLibraryById?.map(movie => <MovieCardFromDb key={movie.id} movieData={movie} />)}
             {watched &&
               watchedMoviesFromDatabase?.map(movie => (

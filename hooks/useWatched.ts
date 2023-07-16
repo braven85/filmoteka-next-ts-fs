@@ -2,14 +2,14 @@ import { create } from 'zustand';
 
 interface WatchedStore {
   watched: boolean;
-  toggleWatched: () => void;
-  resetWatched: () => void;
+  setWatched: () => void;
+  setNotWatched: () => void;
 }
 
-const useWatched = create<WatchedStore>((set) => ({
+const useWatched = create<WatchedStore>(set => ({
   watched: false,
-  toggleWatched: () => set((state) => ({ watched: !state.watched })),
-  resetWatched: () => set({ watched: false }),
+  setWatched: () => set({ watched: true }),
+  setNotWatched: () => set({ watched: false }),
 }));
 
 export default useWatched;

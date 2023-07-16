@@ -14,6 +14,7 @@ import useLoginModal from '@/hooks/useLoginModal';
 import { SafeUser } from '@/types';
 import { signOut } from 'next-auth/react';
 import useIsLoggedIn from '@/hooks/useIsLoggedIn';
+import useWatchedAndQueued from '@/hooks/useWatchedAndQueued';
 
 interface NavbarProps {
   currentUser?: SafeUser | null | undefined;
@@ -22,23 +23,46 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
   const { register, handleSubmit } = useForm();
   const pathname = usePathname();
-  const { watched, toggleWatched } = useWatched();
-  const { queued, toggleQueued } = useQueued();
+  const { watchedAndQueued, setWatchedAndQueued, setNotWatchedAndQueued } = useWatchedAndQueued();
+  const { watched, setWatched, setNotWatched } = useWatched();
+  const { queued, setQueued, setNotQueued } = useQueued();
   const loginModal = useLoginModal();
   const { setIsNotLoggedIn } = useIsLoggedIn();
 
-  const handleWatchedOnClick = () => {
-    if (queued) {
-      toggleQueued();
+  const handleAllOnClick = () => {
+    if (watched) {
+      setNotWatched();
     }
-    toggleWatched();
+
+    if (queued) {
+      setNotQueued();
+    }
+
+    setWatchedAndQueued();
+  };
+
+  const handleWatchedOnClick = () => {
+    if (watchedAndQueued) {
+      setNotWatchedAndQueued();
+    }
+
+    if (queued) {
+      setNotQueued();
+    }
+
+    setWatched();
   };
 
   const handleQueuedOnClick = () => {
-    if (watched) {
-      toggleWatched();
+    if (watchedAndQueued) {
+      setNotWatchedAndQueued();
     }
-    toggleQueued();
+
+    if (watched) {
+      setNotWatched();
+    }
+
+    setQueued();
   };
 
   const handleLogout = () => {
@@ -112,8 +136,19 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
       {pathname === '/library' && currentUser && (
         <div className='mt-12 flex w-full justify-evenly gap-x-2'>
           <Button
+            onClick={handleAllOnClick}
+            className={`text-white border-white px-5 md:px-10 py-3 md:py-5 hover:shadow-lg hover:shadow-active-button-bg
+            ${watchedAndQueued ? 'bg-active-button-bg' : ''}
+            ${watchedAndQueued ? 'border-active-button-bg' : ''}
+            ${watchedAndQueued ? 'shadow-lg' : ''}
+            ${watchedAndQueued ? 'shadow-active-button-bg' : ''}
+            `}
+          >
+            all
+          </Button>
+          <Button
             onClick={handleWatchedOnClick}
-            className={`text-white border-white px-10 py-5 hover:shadow-lg hover:shadow-active-button-bg
+            className={`text-white border-white px-5 md:px-10 py-3 md:py-5 hover:shadow-lg hover:shadow-active-button-bg
             ${watched ? 'bg-active-button-bg' : ''}
             ${watched ? 'border-active-button-bg' : ''}
             ${watched ? 'shadow-lg' : ''}
@@ -124,14 +159,14 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
           </Button>
           <Button
             onClick={handleQueuedOnClick}
-            className={`text-white border-white px-10 py-5 hover:shadow-lg hover:shadow-active-button-bg
+            className={`text-white border-white px-5 md:px-10 py-3 md:py-5 hover:shadow-lg hover:shadow-active-button-bg
             ${queued ? 'bg-active-button-bg' : ''}
             ${queued ? 'border-active-button-bg' : ''}
             ${queued ? 'shadow-lg' : ''}
             ${queued ? 'shadow-active-button-bg' : ''}
             `}
           >
-            queue
+            queued
           </Button>
         </div>
       )}
