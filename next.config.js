@@ -1,14 +1,21 @@
-const withPWA = require('next-pwa')({
-  dest: 'public',
+const withPWA = require("next-pwa")({
+  dest: "public",
   register: true,
   skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development',
+  disable: process.env.NODE_ENV === "development",
 });
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    webpackBuildWorker: true,
+  },
   images: {
-    domains: ['image.tmdb.org'],
+    remotePatterns: [
+      {
+        hostname: "image.tmdb.org",
+      },
+    ],
   },
 };
 
