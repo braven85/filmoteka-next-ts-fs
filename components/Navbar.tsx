@@ -4,7 +4,6 @@ import Image from 'next/image';
 import React from 'react';
 import movieIcon from '../public/film.svg';
 import SearchInput from './SearchInput';
-import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Button from './Button';
@@ -15,19 +14,22 @@ import { SafeUser } from '@/types';
 import { signOut } from 'next-auth/react';
 import useIsLoggedIn from '@/hooks/useIsLoggedIn';
 import useWatchedAndQueued from '@/hooks/useWatchedAndQueued';
+import useSearchInput from '@/hooks/useSearchInput';
+import usePage from '@/hooks/usePage';
 
 interface NavbarProps {
   currentUser?: SafeUser | null | undefined;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
-  const { register, handleSubmit } = useForm();
   const pathname = usePathname();
   const { watchedAndQueued, setWatchedAndQueued, setNotWatchedAndQueued } = useWatchedAndQueued();
   const { watched, setWatched, setNotWatched } = useWatched();
   const { queued, setQueued, setNotQueued } = useQueued();
   const loginModal = useLoginModal();
   const { setIsNotLoggedIn } = useIsLoggedIn();
+  const { resetSearchInput } = useSearchInput();
+  const { setPage } = usePage();
 
   const handleAllOnClick = () => {
     if (watched) {
@@ -70,6 +72,11 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
     setIsNotLoggedIn();
   };
 
+  const handleLogoOnClick = () => {
+    resetSearchInput();
+    setPage(1);
+  };
+
   return (
     <nav
       className={`flex flex-col w-full h-[230px] px-5 bg-cover ${
@@ -77,7 +84,11 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
       }`}
     >
       <div className='flex justify-between items-center pt-12 text-white'>
-        <Link href='/' className='flex justify-center items-center gap-x-2'>
+        <Link
+          href='/'
+          onClick={handleLogoOnClick}
+          className='flex justify-center items-center gap-x-2'
+        >
           <Image
             src={movieIcon}
             alt='movie icon'
@@ -128,9 +139,11 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
       {pathname === '/' && (
         <form
           className='flex w-full pt-16 justify-center'
-          onSubmit={handleSubmit(data => console.log(data))}
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
         >
-          <SearchInput id='movie' register={register} />
+          <SearchInput />
         </form>
       )}
       {pathname === '/library' && currentUser && (

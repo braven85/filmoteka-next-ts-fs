@@ -1,20 +1,15 @@
-import React, { useEffect, useMemo } from 'react';
-import { FieldValues, UseFormRegister } from 'react-hook-form';
+'use client';
+
+import React, { useEffect } from 'react';
 import searchIcon from '../public/search.svg';
 import Image from 'next/image';
 import useMoviesList from '@/hooks/useMoviesList';
 import usePage from '@/hooks/usePage';
-import debounce from 'lodash.debounce';
 import useSearchInput from '@/hooks/useSearchInput';
 import useTotalPagPages from '@/hooks/useTotalPagPages';
 import useTotalResults from '@/hooks/useTotalResults';
 
-interface SearchInputProps {
-  id: string;
-  register: UseFormRegister<FieldValues>;
-}
-
-const SearchInput: React.FC<SearchInputProps> = ({ id, register }) => {
+const SearchInput = () => {
   const { setMoviesList } = useMoviesList();
   const { page, setPage } = usePage();
   const { searchInput, setSearchInput } = useSearchInput();
@@ -36,7 +31,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ id, register }) => {
       if (!res.ok) {
         throw new Error('Something went wrong!');
       } else {
-        return res.json().then(data => setData(data));
+        return res.json().then((data) => setData(data));
       }
     } catch (error) {
       console.error(error);
@@ -57,22 +52,14 @@ const SearchInput: React.FC<SearchInputProps> = ({ id, register }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchInput, page]);
 
-  const handleChange = (e: { target: { value: string } }) => {
-    setSearchInput(e.target.value);
-  };
-
-  const debouncedResults = useMemo(() => {
-    return debounce(handleChange, 1000);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <div className='flex flex-col w-[90%] md:w-[60%] gap-y-3'>
       <div className='w-full flex items-center relative'>
         <input
-          id={id}
+          type='text'
           placeholder='Enter movie name...'
-          {...register(id, { onChange: debouncedResults, value: searchInput })}
+          onChange={(e) => setSearchInput(e.target.value)}
+          value={searchInput}
           className='w-full text-white outline-none border-b-white border-b-[0.5px] bg-transparent text-sm'
         />
         <Image

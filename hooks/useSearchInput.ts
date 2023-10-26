@@ -3,11 +3,13 @@ import { create } from 'zustand';
 interface SearchInputStore {
   searchInput: string | undefined;
   setSearchInput: (input: string) => void;
+  resetSearchInput: () => void;
 }
 
-const useSearchInput = create<SearchInputStore>(set => ({
-  searchInput: undefined,
-  setSearchInput: input => set({ searchInput: input }),
+const useSearchInput = create<SearchInputStore>((set) => ({
+  searchInput: '',
+  setSearchInput: (input) => set({ searchInput: input }),
+  resetSearchInput: () => set({ searchInput: '' }),
 }));
 
 export default useSearchInput;

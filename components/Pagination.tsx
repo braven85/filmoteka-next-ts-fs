@@ -1,5 +1,4 @@
 import usePage from '@/hooks/usePage';
-import React from 'react';
 import PaginationButton from './PaginationButton';
 import arrow from '../public/arrow.svg';
 import Image from 'next/image';
