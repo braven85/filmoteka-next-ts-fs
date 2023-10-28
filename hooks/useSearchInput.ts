@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 interface SearchInputStore {
-  searchInput: string | undefined;
+  searchInput: string;
   setSearchInput: (input: string) => void;
   resetSearchInput: () => void;
 }
