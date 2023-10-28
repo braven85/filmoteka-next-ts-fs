@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import MovieCard from '@/components/MovieCard';
-import Pagination from '@/components/Pagination';
-import useIsLoggedIn from '@/hooks/useIsLoggedIn';
-import useMoviesList from '@/hooks/useMoviesList';
-import usePage from '@/hooks/usePage';
-import useQueuedMovies from '@/hooks/useQueuedMovies';
-import useSearchInput from '@/hooks/useSearchInput';
-import useTotalPagPages from '@/hooks/useTotalPagPages';
-import useTotalResults from '@/hooks/useTotalResults';
-import useWatchedMovies from '@/hooks/useWatchedMovies';
-import { MovieByIdFromDbProps, SafeUser } from '@/types';
-import { useEffect } from 'react';
+import MovieCard from "@/components/MovieCard";
+import Pagination from "@/components/Pagination";
+import useIsLoggedIn from "@/hooks/useIsLoggedIn";
+import useMoviesList from "@/hooks/useMoviesList";
+import usePage from "@/hooks/usePage";
+import useQueuedMovies from "@/hooks/useQueuedMovies";
+import useSearchInput from "@/hooks/useSearchInput";
+import useTotalPagPages from "@/hooks/useTotalPagPages";
+import useTotalResults from "@/hooks/useTotalResults";
+import useWatchedMovies from "@/hooks/useWatchedMovies";
+import { MovieByIdFromDbProps, SafeUser } from "@/types";
+import { useEffect } from "react";
 
 interface HomePageProps {
   currentUser: SafeUser | null;
@@ -19,11 +19,7 @@ interface HomePageProps {
   queuedMoviesFromDatabase: MovieByIdFromDbProps[];
 }
 
-const HomePage: React.FC<HomePageProps> = ({
-  currentUser,
-  watchedMoviesFromDatabase,
-  queuedMoviesFromDatabase,
-}) => {
+const HomePage: React.FC<HomePageProps> = ({ currentUser, watchedMoviesFromDatabase, queuedMoviesFromDatabase }) => {
   const { moviesList, setMoviesList } = useMoviesList();
   const { page, setPage } = usePage();
   const { searchInput } = useSearchInput();
@@ -55,7 +51,7 @@ const HomePage: React.FC<HomePageProps> = ({
       );
 
       if (!res.ok) {
-        throw new Error('Something went wrong!');
+        throw new Error("Something went wrong!");
       } else {
         return res.json().then((data) => setData(data));
       }
@@ -70,7 +66,9 @@ const HomePage: React.FC<HomePageProps> = ({
   }, [searchInput]);
 
   useEffect(() => {
-    if (searchInput === '' || searchInput === undefined) {
+    if (searchInput !== "") {
+      return;
+    } else {
       fetchTrendingMovies();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -78,7 +76,7 @@ const HomePage: React.FC<HomePageProps> = ({
 
   return (
     <>
-      <div className='grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-x-7'>
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-x-7 px-5">
         {moviesList?.map((movie) => (
           <MovieCard key={movie.id} data={movie} />
         ))}

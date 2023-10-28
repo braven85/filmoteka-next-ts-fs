@@ -57,7 +57,7 @@ const MoviesLibrary: React.FC<MoviesLibraryProps> = ({
           {wholeLibraryById.length === 0 && (
             <div className='text-red-600 text-4xl p-10 text-center'>Your library is empty!</div>
           )}
-          <div className='grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-x-7'>
+          <div className='grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-x-7 px-5'>
             {watchedAndQueued &&
               wholeLibraryById?.map(movie => <MovieCardFromDb key={movie.id} movieData={movie} />)}
             {watched &&

@@ -39,6 +39,7 @@ const MovieCardFromDb: React.FC<MovieCardProps> = ({ movieData }) => {
         alt={`${movieData.title} poster`}
         width={280}
         height={398}
+        style={{width: 'auto'}}
         className='rounded-md'
       />
       <div className='flex max-w-[280px] text-center text-xs uppercase font-medium'>

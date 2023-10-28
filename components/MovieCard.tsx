@@ -45,6 +45,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ data }) => {
         alt={`${data.title} poster`}
         width={280}
         height={398}
+        style={{width: 'auto'}}
         className='rounded-md'
       />
       <div className='flex max-w-[280px] text-center text-xs uppercase font-medium'>

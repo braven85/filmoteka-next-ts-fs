@@ -1,13 +1,14 @@
-'use client';
+"use client";
 
-import React, { useEffect } from 'react';
-import searchIcon from '../public/search.svg';
-import Image from 'next/image';
-import useMoviesList from '@/hooks/useMoviesList';
-import usePage from '@/hooks/usePage';
-import useSearchInput from '@/hooks/useSearchInput';
-import useTotalPagPages from '@/hooks/useTotalPagPages';
-import useTotalResults from '@/hooks/useTotalResults';
+import React, { useEffect } from "react";
+import searchIcon from "../public/search.svg";
+import Image from "next/image";
+import useMoviesList from "@/hooks/useMoviesList";
+import usePage from "@/hooks/usePage";
+import useSearchInput from "@/hooks/useSearchInput";
+import useTotalPagPages from "@/hooks/useTotalPagPages";
+import useTotalResults from "@/hooks/useTotalResults";
+import { useDebouncedCallback } from "use-debounce";
 
 const SearchInput = () => {
   const { setMoviesList } = useMoviesList();
@@ -29,7 +30,7 @@ const SearchInput = () => {
       );
 
       if (!res.ok) {
-        throw new Error('Something went wrong!');
+        throw new Error("Something went wrong!");
       } else {
         return res.json().then((data) => setData(data));
       }
@@ -43,36 +44,30 @@ const SearchInput = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchInput]);
 
+  const handleMoviesFetch = useDebouncedCallback(() => {
+    if (searchInput === "") return;
+    fetchMovies(searchInput);
+  }, 500);
+
   useEffect(() => {
-    if (searchInput === '' || searchInput === undefined) {
-      return;
-    } else {
-      fetchMovies(searchInput);
-    }
+    if (searchInput === "" || searchInput === undefined) return;
+    handleMoviesFetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchInput, page]);
 
   return (
-    <div className='flex flex-col w-[90%] md:w-[60%] gap-y-3'>
-      <div className='w-full flex items-center relative'>
+    <div className="flex flex-col w-[90%] md:w-[60%] gap-y-3">
+      <div className="w-full flex items-center relative">
         <input
-          type='text'
-          placeholder='Enter movie name...'
+          type="text"
+          placeholder="Enter movie name..."
           onChange={(e) => setSearchInput(e.target.value)}
           value={searchInput}
-          className='w-full text-white outline-none border-b-white border-b-[0.5px] bg-transparent text-sm'
+          className="w-full text-white outline-none border-b-white border-b-[0.5px] bg-transparent text-sm"
         />
-        <Image
-          src={searchIcon}
-          alt='search icon'
-          width={12}
-          height={12}
-          className='absolute right-0'
-        />
+        <Image src={searchIcon} alt="search icon" width={12} height={12} className="absolute right-0" />
       </div>
-      {totalResults === 0 && (
-        <div className='text-red-600 text-center'>No results. Enter the correct movie name</div>
-      )}
+      {totalResults === 0 && <div className="text-red-600 text-center">No results. Enter the correct movie name</div>}
     </div>
   );
 };
