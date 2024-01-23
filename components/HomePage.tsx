@@ -35,12 +35,11 @@ const HomePage: React.FC<HomePageProps> = ({ currentUser, watchedMoviesFromDatab
   const haveWatchedMovies = watchedMovies.length > 0 ? true : false;
 
   let filteredMovies: TrendingMoviesProps[] | undefined = [];
-  if (haveWatchedMovies) {
-    if (moviesList) {
-      filteredMovies = moviesList.filter((movie) => {
-        return watchedMovies.findIndex((watchedMovie) => watchedMovie.movieId === movie.id) === -1;
-      });
-    }
+
+  if (haveWatchedMovies && moviesList) {
+    filteredMovies = moviesList.filter((movie) => {
+      return watchedMovies.findIndex((watchedMovie) => watchedMovie.movieId === movie.id) === -1;
+    });
   }
 
   return (
