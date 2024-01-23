@@ -27,6 +27,7 @@ module.exports = {
       },
       colors: {
         "link-underline": "#FF6B08",
+        "switch-bg": "#FF6B08",
         "movie-genres-and-date": "#FF6B08",
         "active-pagination-bg": "#FF6B08",
         "pagination-btn-bg": "#F7F7F7",

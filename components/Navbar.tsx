@@ -15,6 +15,10 @@ import { signOut } from "next-auth/react";
 import useIsLoggedIn from "@/hooks/useIsLoggedIn";
 import useWatchedAndQueued from "@/hooks/useWatchedAndQueued";
 import usePage from "@/hooks/usePage";
+import { Switch } from "./ui/switch";
+import { Label } from "./ui/label";
+import useHideWatched from "@/hooks/useHideWatched";
+import useWatchedMovies from "@/hooks/useWatchedMovies";
 
 interface NavbarProps {
   currentUser?: SafeUser | null | undefined;
@@ -23,6 +27,8 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
   const pathname = usePathname();
   const { watchedAndQueued, setWatchedAndQueued, setNotWatchedAndQueued } = useWatchedAndQueued();
+  const { watchedMovies } = useWatchedMovies();
+  const { hideWatched, setHideWatched, setNotHideWatched } = useHideWatched();
   const { watched, setWatched, setNotWatched } = useWatched();
   const { queued, setQueued, setNotQueued } = useQueued();
   const loginModal = useLoginModal();
@@ -64,6 +70,10 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
     }
 
     setQueued();
+  };
+
+  const handleHideWatched = () => {
+    hideWatched ? setNotHideWatched() : setHideWatched();
   };
 
   const handleLogout = () => {
@@ -124,14 +134,29 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
         </div>
       </div>
       {pathname === "/" && (
-        <form
-          className="flex w-full pt-16 justify-center"
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
-          <SearchInput />
-        </form>
+        <div className={currentUser ? "md:flex" : ""}>
+          <form
+            className="flex w-full pt-16 justify-center"
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+          >
+            <SearchInput />
+          </form>
+          {currentUser && watchedMovies.length > 0 && (
+            <div className="flex md:flex-row-reverse justify-center items-center text-center mt-4 md:mt-16">
+              <Label htmlFor="watched-movies-switch" className="text-white whitespace-nowrap mr-2 md:mr-0">
+                {hideWatched ? "Show watched movies" : "Hide watched movies"}
+              </Label>
+              <Switch
+                className="mr-0 md:mr-2"
+                id="watched-movies-switch"
+                checked={hideWatched}
+                onCheckedChange={handleHideWatched}
+              />
+            </div>
+          )}
+        </div>
       )}
       {pathname === "/library" && currentUser && (
         <div className="mt-12 flex w-full justify-evenly gap-x-2">
